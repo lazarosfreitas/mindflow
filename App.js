@@ -1,5 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { useCallback, useState, useEffect } from 'react'; 
+import * as SplashScreen from 'expo-splash-screen';
 
 import {
   useFonts,
@@ -8,11 +10,14 @@ import {
   Fredoka_500Medium,
   Fredoka_600SemiBold,
   Fredoka_700Bold
-} from '@expo-google-fonts/fredoka'
+} from '@expo-google-fonts/fredoka';
+import IntroScreen from './views/introScreen/introScreen'; 
 
-import AppLoading from 'expo-app-loading';
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const [appIsReady, setAppIsReady] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   const [fontsLoaded] = useFonts({
     Fredoka_300Light,
@@ -20,25 +25,55 @@ export default function App() {
     Fredoka_500Medium,
     Fredoka_600SemiBold,
     Fredoka_700Bold
-  })
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      const timer = setTimeout(() => {
+        setShowIntro(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [fontsLoaded]);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return null;
   }
 
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <StatusBar style="auto" />
+
+      {showIntro ? (
+
+        <IntroScreen />
+      ) : (
+        <View style={styles.mainContent}>
+          <Text style={styles.text}>Bem vindo ao mindflow!</Text>
+        </View>
+      )}
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  mainContent: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  text: {
+    fontFamily: 'Fredoka_700Bold',
+    fontSize: 20
+  }
 });

@@ -1,31 +1,33 @@
-import styled from 'styled-components/native'
+import styled from 'styled-components/native';
+import { colors } from '../src/components/styles/colors';
+import { fonts } from '../src/components/styles/fonts';
 
-export const text = styled.Text`
+export const Text = styled.Text`
     font-size: 15px;
-    color: ${({ theme }) => theme.colors.black};
-    font-family: ${({ theme }) => theme.fonts.text};
+    color: ${colors.black};
+    font-family: ${fonts.text}; 
 `;
 
-export const text2 = styled.Text`
+export const Text2 = styled.Text`
     font-size: 15px;
-    color: ${({ theme }) => theme.colors.black};
-    font-family: ${({ theme }) => theme.fonts.text2};
+    color: ${colors.black};
+    font-family: ${fonts.text2};
 `;
 
-export const title1 = styled.Text`
+export const Title1 = styled.Text`
     font-size: 15px;
-    color: ${({ theme }) => theme.colors.black};
-    font-family: ${({ theme }) => theme.fonts.title1};
+    color: ${colors.black};
+    font-family: ${fonts.title1};
 `;
 
-export const title2 = styled.Text`
+export const Title2 = styled.Text`
     font-size: 15px;
-    color: ${({ theme }) => theme.colors.black};
-    font-family: ${({ theme }) => theme.fonts.title2};
+    color: ${colors.black};
+    font-family: ${fonts.title2};
 `;
 
-export const title3 = styled.Text`
+export const Title3 = styled.Text`
     font-size: 15px;
-    color: ${({ theme }) => theme.colors.black};
-    font-family: ${({ theme }) => theme.fonts.title3};
+    color: ${colors.black};
+    font-family: ${fonts.title3};
 `;
