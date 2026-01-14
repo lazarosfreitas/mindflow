@@ -4,6 +4,9 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Audio } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useFonts } from 'expo-font';
+
+
 const config = {
   Pomodoro: 15,
   "Short Break": 30,
@@ -18,19 +21,28 @@ const gifs = {
   dançando: require('../assets/quelonioDancando.gif'),
 };
 
-export default function PomodoroScreen() {
+export default function MindflowScreen() {
   const [time, setTime] = useState(config.Pomodoro);
   const [mode, setMode] = useState("Pomodoro");
   const [isActive, setIsActive] = useState(false);
   const [cycle, setCycle] = useState(1);
   const [finished, setFinished] = useState(false);
+  
+
+
 
   const [pomodoroSound, setPomodoroSound] = useState(null);
   const [breakSound, setBreakSound] = useState(null);
 
   const screenWidth = Dimensions.get('window').width;
 
-  // 🔊 Carrega os sons
+  const [fontsLoaded] = useFonts({
+    Fredoka: require('../assets/fonts/Fredoka-Regular.ttf'),
+    FredokaExpandedLight: require('../assets/fonts/Fredoka-Expanded-Light.ttf'),
+    FredokaBold: require('../assets/fonts/Fredoka-Bold.ttf'),
+  });
+
+
   useEffect(() => {
     (async () => {
       const { sound: bell } = await Audio.Sound.createAsync(
@@ -62,7 +74,6 @@ export default function PomodoroScreen() {
     }
   };
 
-  // ⏱️ Timer
   useEffect(() => {
     let interval = null;
 
@@ -82,7 +93,6 @@ export default function PomodoroScreen() {
   const handleEnd = () => {
     setIsActive(false);
 
-    // 🔚 Último Pomodoro → DANÇANDO 🎉
     if (mode === "Pomodoro" && cycle === TOTAL_POMODOROS) {
       setFinished(true);
       playBreakSound();
@@ -107,12 +117,6 @@ export default function PomodoroScreen() {
 
   const startTimer = () => {
     setIsActive(true);
-
-    if (mode === "Pomodoro") {
-      playPomodoroSound();
-    } else {
-      playBreakSound();
-    }
   };
 
   const formatTime = (seconds) => {
@@ -131,15 +135,14 @@ export default function PomodoroScreen() {
   const fill = finished ? 100 : (time / config[mode]) * 100;
 
   return (
-    
     <ImageBackground
       source={require('../assets/background.png')}
       style={styles.container}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.timerText}>
-          {finished ? '🎉 Concluído!' : formatTime(time)}
+      {fontsLoaded ? (<SafeAreaView style={styles.container}>
+        <Text style={[styles.timerText, { fontFamily: 'FredokaBold' }]}>
+          {finished ? 'Concluído!' : formatTime(time)}
         </Text>
 
         <AnimatedCircularProgress
@@ -159,17 +162,24 @@ export default function PomodoroScreen() {
           )}
         </AnimatedCircularProgress>
 
-        {!finished && (
+        {/* Botão - som */}
+        {!finished  && (
           <TouchableOpacity
-            style={[styles.button, isActive ? styles.pause : styles.play]}
+            style={[[styles.button, isActive ? styles.pause : styles.play]]}
             onPress={() => (isActive ? setIsActive(false) : startTimer())}
           >
-            <Text style={styles.buttonText}>
+            <Text style={[styles.buttonText, {fontFamily: "FredokaBold"}]}>
               {isActive ? 'Pausar' : 'Iniciar'}
             </Text>
           </TouchableOpacity>
         )}
-      </SafeAreaView>
+      </SafeAreaView>) :
+        (
+          <View style={styles.container}>
+            <Text>Carregando fontes...</Text>
+          </View>)}
+      {/* texto font */}
+
     </ImageBackground>
   );
 }
@@ -183,9 +193,7 @@ const styles = StyleSheet.create({
   },
   timerText: {
     color: '#fff',
-    fontSize: 36,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 64,
   },
   button: {
     marginTop: 30,
@@ -204,9 +212,8 @@ const styles = StyleSheet.create({
     color: "white"
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 20,
+    color: '#3F3F3F',
     textAlign: 'center',
   },
 });
