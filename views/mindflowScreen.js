@@ -4,13 +4,16 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Audio } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { FontAwesome } from '@expo/vector-icons';
+
+
 import { useFonts } from 'expo-font';
 
 
 const config = {
-  Pomodoro: 15,
-  "Short Break": 30,
-  "Long Break": 10,
+  Pomodoro: 3,
+  "Short Break": 5,
+  "Long Break": 6,
 };
 
 const TOTAL_POMODOROS = 4;
@@ -27,9 +30,6 @@ export default function MindflowScreen() {
   const [isActive, setIsActive] = useState(false);
   const [cycle, setCycle] = useState(1);
   const [finished, setFinished] = useState(false);
-  
-
-
 
   const [pomodoroSound, setPomodoroSound] = useState(null);
   const [breakSound, setBreakSound] = useState(null);
@@ -90,30 +90,43 @@ export default function MindflowScreen() {
     return () => clearInterval(interval);
   }, [isActive, time]);
 
+  const reniciar = () => {
+  setFinished(false);
+  setCycle(1);
+  setIsActive(false);
+  setMode("Pomodoro");
+  setTime(config.Pomodoro);
+};
+
+
   const handleEnd = () => {
-    setIsActive(false);
+  setIsActive(false);
 
-    if (mode === "Pomodoro" && cycle === TOTAL_POMODOROS) {
-      setFinished(true);
-      playBreakSound();
-      return;
-    }
-
-    if (mode === "Pomodoro") {
-      setMode(cycle === TOTAL_POMODOROS - 1 ? "Long Break" : "Short Break");
-      setTime(
-        cycle === TOTAL_POMODOROS - 1
-          ? config["Long Break"]
-          : config["Short Break"]
-      );
-      playBreakSound();
+  if (mode === "Pomodoro") {
+    if (cycle < TOTAL_POMODOROS) {
+      // Pausa curta nos 3 primeiros ciclos
+      setMode("Short Break");
+      setTime(config["Short Break"]);
     } else {
-      setMode("Pomodoro");
-      setTime(config.Pomodoro);
-      setCycle(prev => prev + 1);
-      playPomodoroSound();
+      // Pausa longa no 4º ciclo
+      setMode("Long Break");
+      setTime(config["Long Break"]);
     }
-  };
+    playBreakSound();
+  } else {
+    // Depois da pausa, volta para Pomodoro
+    if (mode === "Long Break") {
+      // terminou o ciclo completo
+      setFinished(true);
+    } else {
+      setCycle(prev => prev + 1);
+    }
+    setMode("Pomodoro");
+    setTime(config.Pomodoro);
+    playPomodoroSound();
+  }
+};
+
 
   const startTimer = () => {
     setIsActive(true);
@@ -140,8 +153,14 @@ export default function MindflowScreen() {
       style={styles.container}
       resizeMode="cover"
     >
-      {fontsLoaded ? (<SafeAreaView style={styles.container}>
-        <Text style={[styles.timerText, { fontFamily: 'FredokaBold' }]}>
+
+      {fontsLoaded ? (
+        <SafeAreaView style={styles.container}>
+        <Text style={[styles.timerText, {
+          fontSize: 64,
+          color: 'white',
+          fontFamily: 'FredokaBold'
+        }]}>
           {finished ? 'Concluído!' : formatTime(time)}
         </Text>
 
@@ -163,22 +182,41 @@ export default function MindflowScreen() {
         </AnimatedCircularProgress>
 
         {/* Botão - som */}
-        {!finished  && (
+        {!finished && (
           <TouchableOpacity
             style={[[styles.button, isActive ? styles.pause : styles.play]]}
             onPress={() => (isActive ? setIsActive(false) : startTimer())}
           >
-            <Text style={[styles.buttonText, {fontFamily: "FredokaBold"}]}>
+            <Text style={[styles.buttonText, { fontFamily: "FredokaBold" }]}>
               {isActive ? 'Pausar' : 'Iniciar'}
             </Text>
           </TouchableOpacity>
         )}
+      
+        {finished && (
+          <TouchableOpacity
+            style={[[styles.button, isActive ? styles.pause : styles.play]]}
+            onPress={() =>  reniciar()}
+          >
+            <Text style={[styles.buttonText, { fontFamily: "FredokaBold" }]}>
+              Reniciar
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.fixedButton}>
+          <TouchableOpacity style={styles.buttonIconContent}>
+            <FontAwesome name="sticky-note" size={55} color="white" />
+            <Text style={{color:"white"}}>Tarefas</Text>
+          </TouchableOpacity>
+        </View>
+
       </SafeAreaView>) :
         (
           <View style={styles.container}>
             <Text>Carregando fontes...</Text>
           </View>)}
-      {/* texto font */}
+
 
     </ImageBackground>
   );
@@ -189,7 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-
+    position: "relative"
   },
   timerText: {
     color: '#fff',
@@ -216,4 +254,21 @@ const styles = StyleSheet.create({
     color: '#3F3F3F',
     textAlign: 'center',
   },
+  fixedButton: {
+    position: 'absolute',
+    alignItems: 'center',
+    top: "95%",
+  },
+  buttonIconContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+
+    backgroundColor: "#6AC7E1",
+    color: '#FFF',
+    padding: 12,
+    borderRadius: 16
+
+  },
+
 });
