@@ -11,9 +11,9 @@ import { useFonts } from 'expo-font';
 
 
 const config = {
-  Pomodoro: 3,
-  "Short Break": 5,
-  "Long Break": 6,
+  Pomodoro: 60*25,
+  "Short Break": 60*5,
+  "Long Break": 60*15,
 };
 
 const TOTAL_POMODOROS = 4;
