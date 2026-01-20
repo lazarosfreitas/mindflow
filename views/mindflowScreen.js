@@ -24,7 +24,7 @@ const gifs = {
   dançando: require('../assets/quelonioDancando.gif'),
 };
 
-export default function MindflowScreen() {
+export default function MindflowScreen({ navigation }) {
   const [time, setTime] = useState(config.Pomodoro);
   const [mode, setMode] = useState("Pomodoro");
   const [isActive, setIsActive] = useState(false);
@@ -205,7 +205,10 @@ export default function MindflowScreen() {
         )}
 
         <View style={styles.fixedButton}>
-          <TouchableOpacity style={styles.buttonIconContent}>
+          <TouchableOpacity
+            style={styles.buttonIconContent}
+            onPress={() => navigation.navigate('NovaTarefa')}
+          >
             <FontAwesome name="sticky-note" size={55} color="white" />
             <Text style={{color:"white"}}>Tarefas</Text>
           </TouchableOpacity>

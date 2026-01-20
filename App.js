@@ -3,8 +3,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import IntroScreen from './views/introScreen/introScreen';
 import AuthNavigator from './views/AuthNavigator';
 import { UserProvider } from './views/context/UserConstext';
-import MindflowScreen from './views/mindflowScreen';
 import { NavigationContainer } from '@react-navigation/native';
+
 
 export default function App() {
   const [loading, setLoading] = useState(true);

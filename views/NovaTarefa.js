@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   TextInput,
@@ -8,33 +7,44 @@ import {
   StyleSheet,
   ImageBackground,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Modal } from 'react-native';
 
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function NovaTarefa({ navigation }) {
-  return (
-    <SafeAreaView style={styles.container}>
+  // 🔹 BASE FUNDAMENTAL (ESTADOS)
+  const [dateModalVisible, setDateModalVisible] = useState(false);
+  const [iconModalVisible, setIconModalVisible] = useState(false);
+  const [timeModalVisible, setTimeModalVisible] = useState(false);
 
+  const [selectedDate, setSelectedDate] = useState('Hoje, 04 de novembro de 2025');
+  const [selectedIcon, setSelectedIcon] = useState('calendar-check');
+  const [selectedTime, setSelectedTime] = useState(null);
+
+  return (
+    <View style={{ flex: 1 }}>
       <ImageBackground
-        source={require('../../assets/fonts/background.png')}
-        style={styles.background}
+        source={require('../assets/background.png')}
+        style={{ flex: 1 }}
         resizeMode="cover"
       >
 
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Feather name="x" size={24} color="#000" />
-          </TouchableOpacity>
+        {/* SAFE AREA APENAS NO HEADER */}
+        <SafeAreaView edges={['top']} style={styles.safeHeader}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Feather name="x" size={24} color="#000" />
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveText}>Salvar</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity style={styles.saveButton}>
+              <Text style={styles.saveText}>Salvar</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
 
-        {/* Conteúdo */}
+        {/* CONTEÚDO NORMAL */}
         <View style={styles.content}>
-
           {/* Ícone */}
           <View style={styles.iconCircle}>
             <MaterialCommunityIcons
@@ -47,33 +57,105 @@ export default function NovaTarefa({ navigation }) {
           {/* Input */}
           <TextInput
             placeholder="Nova tarefa..."
-            placeholderTextColor="#B5B5B5"
+            placeholderTextColor="#2a2a2a"
             style={styles.input}
           />
 
           {/* Opções */}
           <View style={styles.optionsRow}>
-            <OptionButton icon="calendar" text="Hoje, 04 de novembro de 2025" />
+            <OptionButton
+              icon="calendar"
+              text={selectedDate}
+              onPress={() => setDateModalVisible(true)}
+            />
           </View>
 
           <View style={styles.optionsRow}>
-            <OptionButton icon="bell-off" text="Sem lembrete" />
+            <OptionButton
+            icon="bell-off"
+            text="Sem lembrete"
+            onPress={() => setTimeModalVisible(true)}
+          />
+
             <OptionButton icon="droplet" text="Cor" />
           </View>
 
           <View style={styles.optionsRow}>
             <OptionButton icon="clock" text="4 pomodoros" />
-            <OptionButton icon="star" text="Ícone" />
+            <OptionButton
+              icon="star"
+              text="Ícone"
+              onPress={() => setIconModalVisible(true)}
+            />
           </View>
-
         </View>
 
+        
+  {/* ===== MODAL DATA ===== */}
+  <Modal visible={dateModalVisible} transparent animationType="slide">
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>Selecionar data</Text>
+
+        <TouchableOpacity
+          onPress={() => {
+            setSelectedDate('05 de novembro de 2025');
+            setDateModalVisible(false);
+          }}
+        >
+          <Text>05 de novembro de 2025</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+
+  {/* ===== MODAL ÍCONE ===== */}
+  <Modal visible={iconModalVisible} transparent animationType="slide">
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>Selecionar ícone</Text>
+
+        <View style={{ flexDirection: 'row', gap: 20 }}>
+          {['heart', 'cart', 'book', 'star'].map(icon => (
+            <TouchableOpacity
+              key={icon}
+              onPress={() => {
+                setSelectedIcon(icon);
+                setIconModalVisible(false);
+              }}
+            >
+              <MaterialCommunityIcons name={icon} size={40} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </View>
+  </Modal>
+
+  {/* ===== MODAL HORA ===== */}
+  <Modal visible={timeModalVisible} transparent animationType="slide">
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>Adicionar lembrete</Text>
+
+        <TouchableOpacity
+          onPress={() => {
+            setSelectedTime('12:00');
+            setTimeModalVisible(false);
+          }}
+        >
+          <Text style={{ fontSize: 32 }}>12:00</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 }
 
-function OptionButton({ icon, text }) {
+function OptionButton({ icon, text, onPress }) {
   return (
     <TouchableOpacity style={styles.optionButton}>
       <Feather name={icon} size={18} color="#000" />
@@ -91,12 +173,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-  },
+  safeHeader: {
+  backgroundColor: '#FFFFFF',
+},
+
+header: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+  paddingTop: 10,
+  paddingBottom: 12,
+},
+
 
   saveButton: {
     borderWidth: 1,
